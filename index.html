@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>Cartão Diário</title>
+<meta name="theme-color" content="#4E6B5D">
+<meta name="description" content="Cartão diário para monitorar emoções, desconfortos e impulsos.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ===================== TELA PRINCIPAL ===================== -->
+  <main id="view-main" class="view view-active">
+
+    <header class="topbar">
+      <button class="icon-btn" id="btn-diario" aria-label="Abrir diário livre" title="Diário">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5.5a2 2 0 0 1 2-2h11a1 1 0 0 1 1 1v14.2a.8.8 0 0 1-.8.8H6a2 2 0 0 1-2-2Z"/><path d="M4 19.5a2 2 0 0 0 2 2h10.5"/><path d="M8 7h7M8 10.3h7M8 13.6h4.5"/></svg>
+      </button>
+
+      <div class="day-nav" id="day-nav">
+        <button class="arrow-btn" id="btn-prev-day" aria-label="Dia anterior">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button class="day-label" id="btn-open-calendar" aria-label="Abrir calendário">
+          <span class="day-name" id="day-name">Segunda</span>
+          <span class="day-date" id="day-date">04 de agosto</span>
+        </button>
+        <button class="arrow-btn" id="btn-next-day" aria-label="Próximo dia">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+
+      <button class="icon-btn" id="btn-export" aria-label="Exportar dados" title="Exportar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7.5 10.5 12 15l4.5-4.5"/><path d="M4.5 19.5h15"/></svg>
+      </button>
+    </header>
+
+    <div class="fill-indicator" id="fill-indicator" aria-hidden="true"></div>
+
+    <div class="content" id="main-content">
+
+      <!-- Seção Emoções -->
+      <section class="card-section" data-section="emocoes">
+        <div class="section-header">
+          <h2>Emoções</h2>
+        </div>
+        <div class="item-list" id="list-emocoes"></div>
+      </section>
+
+      <!-- Seção Desconfortos -->
+      <section class="card-section" data-section="desconfortos">
+        <div class="section-header">
+          <h2>Desconfortos</h2>
+          <button class="edit-list-btn" data-list="desconfortos" aria-label="Editar lista de desconfortos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
+        </div>
+        <div class="item-list" id="list-desconfortos"></div>
+      </section>
+
+      <!-- Seção Impulsos -->
+      <section class="card-section" data-section="impulsos">
+        <div class="section-header">
+          <h2>Impulsos</h2>
+          <button class="edit-list-btn" data-list="impulsos" aria-label="Editar lista de impulsos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
+        </div>
+        <div class="item-list" id="list-impulsos"></div>
+      </section>
+
+      <!-- Seção Medicações -->
+      <section class="card-section" data-section="medicacoes">
+        <div class="section-header">
+          <h2>Medicações</h2>
+          <button class="edit-list-btn" data-list="medicacoes" aria-label="Editar lista de medicações">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
+        </div>
+        <div class="item-list med-list" id="list-medicacoes"></div>
+      </section>
+
+      <div class="bottom-space"></div>
+    </div>
+  </main>
+
+  <!-- ===================== TELA DIÁRIO LIVRE ===================== -->
+  <main id="view-diario" class="view">
+    <header class="topbar topbar-simple">
+      <button class="icon-btn" id="btn-diario-back" aria-label="Voltar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <h1 class="page-title">Diário livre</h1>
+      <span id="diario-date-label" class="page-subtitle-inline"></span>
+    </header>
+    <div class="content">
+      <textarea id="diario-text" class="diario-textarea" placeholder="Escreva livremente sobre o seu dia…"></textarea>
+    </div>
+  </main>
+
+  <!-- ===================== MODAL CALENDÁRIO ===================== -->
+  <div class="modal-overlay" id="modal-calendar">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <button class="icon-btn" id="cal-prev-month" aria-label="Mês anterior">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span id="cal-month-label" class="modal-title"></span>
+        <button class="icon-btn" id="cal-next-month" aria-label="Próximo mês">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+      <div class="cal-weekdays">
+        <span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span><span>D</span>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="cal-legend">
+        <span><i class="dot dot-partial"></i> parcial</span>
+        <span><i class="dot dot-complete"></i> completo</span>
+      </div>
+      <button class="btn-secondary" id="cal-close">Fechar</button>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL EDITAR LISTA ===================== -->
+  <div class="modal-overlay" id="modal-edit-list">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <span class="modal-title" id="edit-list-title">Editar lista</span>
+        <button class="icon-btn" id="edit-list-close" aria-label="Fechar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <div class="edit-list-items" id="edit-list-items"></div>
+      <div class="edit-list-add">
+        <input type="text" id="edit-list-input" placeholder="Novo item…">
+        <button class="btn-primary btn-small" id="edit-list-add-btn">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL EXPORTAR ===================== -->
+  <div class="modal-overlay" id="modal-export">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <span class="modal-title">Exportar PDF</span>
+        <button class="icon-btn" id="export-close" aria-label="Fechar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <p class="modal-text">Escolha qualquer semana. O PDF é gerado de segunda a domingo, uma semana por página.</p>
+      <label class="field-label" for="export-week-count">Número de semanas a exportar</label>
+      <input type="number" id="export-week-count" min="1" max="52" value="1">
+      <label class="field-label" for="export-start-date">Semana inicial (qualquer dia dela)</label>
+      <input type="date" id="export-start-date">
+      <button class="btn-primary" id="export-generate">Gerar PDF</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
