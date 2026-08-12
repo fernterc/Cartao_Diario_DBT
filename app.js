@@ -163,9 +163,14 @@ function computeFillStatus(dateISO){
 /* ---------------- Rendering: main screen ---------------- */
 
 function renderDayHeader(){
-  document.getElementById('day-name').textContent = WEEKDAY_NAMES[currentDate.getDay()];
-  document.getElementById('day-date').textContent =
-    `${currentDate.getDate()} de ${MONTH_NAMES[currentDate.getMonth()]}`;
+  // Atualiza todas as instâncias do componente de navegação de dia
+  // (tela principal e tela do diário livre) para manterem-se em sincronia.
+  document.querySelectorAll('.js-day-nav .day-name').forEach(el => {
+    el.textContent = WEEKDAY_NAMES[currentDate.getDay()];
+  });
+  document.querySelectorAll('.js-day-nav .day-date').forEach(el => {
+    el.textContent = `${currentDate.getDate()} de ${MONTH_NAMES[currentDate.getMonth()]}`;
+  });
 
   const status = computeFillStatus(toISO(currentDate));
   const indicator = document.getElementById('fill-indicator');
@@ -178,6 +183,19 @@ function renderAll(){
   renderSection('desconfortos', state.config.lists.desconfortos, 'list-desconfortos', {});
   renderSection('impulsos', state.config.lists.impulsos, 'list-impulsos', {withAcao:true});
   renderMedicacoes();
+  refreshDiarioIfActive();
+}
+
+function refreshDiarioIfActive(){
+  if(!viewDiario.classList.contains('view-active')) return;
+  const dateISO = toISO(currentDate);
+  const entry = getEntry(dateISO, false);
+  const textarea = document.getElementById('diario-text');
+  // só substitui o valor se o campo não estiver com foco, para não atrapalhar
+  // o usuário caso ele esteja digitando no momento da atualização.
+  if(document.activeElement !== textarea){
+    textarea.value = entry ? (entry.diario || '') : '';
+  }
 }
 
 function renderSection(catKey, itemNames, containerId, opts){
@@ -201,7 +219,10 @@ function renderSection(catKey, itemNames, containerId, opts){
     toggle.innerHTML = `<span class="item-name">${escapeHtml(name)}</span>
       <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>`;
     toggle.addEventListener('click', () => {
-      row.classList.toggle('open');
+      const wasOpen = row.classList.contains('open');
+      // Apenas um item pode ficar aberto por vez dentro da mesma seção.
+      container.querySelectorAll('.item-row.open').forEach(r => r.classList.remove('open'));
+      if(!wasOpen) row.classList.add('open');
     });
 
     const detail = document.createElement('div');
@@ -264,7 +285,8 @@ function renderSection(catKey, itemNames, containerId, opts){
       const item = ensureItemData(d[catKey], name, !!opts.withAcao);
       item.obs = e.target.value;
       saveState();
-      renderSection(catKey, itemNames, containerId, opts);
+      // Não re-renderiza a seção aqui: reconstruir o DOM enquanto o usuário
+      // digita tira o foco do campo e fecha o teclado no celular.
     }, 400));
     inner.appendChild(obs);
 
@@ -341,31 +363,39 @@ function goToDay(d){
   currentDate = new Date(d);
   renderAll();
 }
-document.getElementById('btn-prev-day').addEventListener('click', () => goToDay(addDays(currentDate,-1)));
-document.getElementById('btn-next-day').addEventListener('click', () => goToDay(addDays(currentDate,1)));
 
-// swipe on day-nav only
+// Delegação de eventos: funciona para todas as instâncias do componente de
+// navegação de dia (tela principal e tela do diário livre).
+document.addEventListener('click', (e) => {
+  if(e.target.closest('.js-prev-day')) goToDay(addDays(currentDate,-1));
+  if(e.target.closest('.js-next-day')) goToDay(addDays(currentDate,1));
+});
+
+// swipe sobre qualquer instância do componente de navegação
 (function setupSwipe(){
-  const el = document.getElementById('day-nav');
-  let startX = null, startY = null;
-  el.addEventListener('touchstart', (e) => {
+  let startX = null, startY = null, activeNav = null;
+  document.addEventListener('touchstart', (e) => {
+    const nav = e.target.closest('.js-day-nav');
+    if(!nav) { activeNav = null; return; }
+    activeNav = nav;
     startX = e.touches[0].clientX; startY = e.touches[0].clientY;
   }, {passive:true});
-  el.addEventListener('touchend', (e) => {
-    if(startX === null) return;
+  document.addEventListener('touchend', (e) => {
+    if(startX === null || !activeNav) return;
     const dx = e.changedTouches[0].clientX - startX;
     const dy = e.changedTouches[0].clientY - startY;
     if(Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)*1.5){
       goToDay(addDays(currentDate, dx < 0 ? 1 : -1));
     }
-    startX = null; startY = null;
+    startX = null; startY = null; activeNav = null;
   }, {passive:true});
 })();
 
 /* ---------------- Calendar modal ---------------- */
 
 const modalCalendar = document.getElementById('modal-calendar');
-document.getElementById('btn-open-calendar').addEventListener('click', () => {
+document.addEventListener('click', (e) => {
+  if(!e.target.closest('.js-open-calendar')) return;
   calendarViewDate = new Date(currentDate);
   renderCalendar();
   modalCalendar.classList.add('open');
@@ -533,8 +563,6 @@ document.getElementById('btn-diario').addEventListener('click', () => {
   const dateISO = toISO(currentDate);
   const entry = getEntry(dateISO, false);
   document.getElementById('diario-text').value = entry ? (entry.diario || '') : '';
-  document.getElementById('diario-date-label').textContent =
-    `${WEEKDAY_NAMES[currentDate.getDay()]}, ${currentDate.getDate()} de ${MONTH_NAMES[currentDate.getMonth()]}`;
   switchView(viewDiario);
 });
 document.getElementById('btn-diario-back').addEventListener('click', () => switchView(viewMain));
@@ -672,6 +700,61 @@ function renderWeekPage(doc, weekStart){
       5:{halign:'center'},6:{halign:'center'},7:{halign:'center'}
     },
     theme: 'grid'
+  });
+
+  renderDiarioSection(doc, weekDates, doc.lastAutoTable.finalY + 22, margin);
+}
+
+function renderDiarioSection(doc, weekDates, startY, margin){
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const usableWidth = pageWidth - margin*2;
+  const bottomLimit = pageHeight - margin;
+
+  const entriesWithText = weekDates
+    .map(d => ({ d, text: (state.entries[toISO(d)] && state.entries[toISO(d)].diario || '').trim() }))
+    .filter(e => e.text.length > 0);
+
+  if(entriesWithText.length === 0) return;
+
+  let y = startY;
+
+  const ensureSpace = (needed) => {
+    if(y + needed > bottomLimit){
+      doc.addPage();
+      y = margin + 10;
+    }
+  };
+
+  ensureSpace(20);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(11.5);
+  doc.setTextColor(58, 82, 69);
+  doc.text('Diário', margin, y);
+  y += 16;
+  doc.setDrawColor(78,107,90);
+  doc.setLineWidth(0.7);
+  doc.line(margin, y-5, margin + usableWidth, y-5);
+
+  entriesWithText.forEach(({d, text}) => {
+    const label = `${WEEKDAY_NAMES[d.getDay()]}, ${d.getDate()} de ${MONTH_NAMES[d.getMonth()]}`;
+    ensureSpace(16);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(9.5);
+    doc.setTextColor(78,107,90);
+    doc.text(label, margin, y);
+    y += 13;
+
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(9);
+    doc.setTextColor(43,55,46);
+    const lines = doc.splitTextToSize(text, usableWidth);
+    lines.forEach(line => {
+      ensureSpace(12);
+      doc.text(line, margin, y);
+      y += 12;
+    });
+    y += 8;
   });
 }
 

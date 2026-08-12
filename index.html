@@ -26,15 +26,15 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5.5a2 2 0 0 1 2-2h11a1 1 0 0 1 1 1v14.2a.8.8 0 0 1-.8.8H6a2 2 0 0 1-2-2Z"/><path d="M4 19.5a2 2 0 0 0 2 2h10.5"/><path d="M8 7h7M8 10.3h7M8 13.6h4.5"/></svg>
       </button>
 
-      <div class="day-nav" id="day-nav">
-        <button class="arrow-btn" id="btn-prev-day" aria-label="Dia anterior">
+      <div class="day-nav js-day-nav">
+        <button class="arrow-btn js-prev-day" aria-label="Dia anterior">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
-        <button class="day-label" id="btn-open-calendar" aria-label="Abrir calendário">
-          <span class="day-name" id="day-name">Segunda</span>
-          <span class="day-date" id="day-date">04 de agosto</span>
+        <button class="day-label js-open-calendar" aria-label="Abrir calendário">
+          <span class="day-name">Segunda</span>
+          <span class="day-date">04 de agosto</span>
         </button>
-        <button class="arrow-btn" id="btn-next-day" aria-label="Próximo dia">
+        <button class="arrow-btn js-next-day" aria-label="Próximo dia">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
         </button>
       </div>
@@ -95,13 +95,27 @@
 
   <!-- ===================== TELA DIÁRIO LIVRE ===================== -->
   <main id="view-diario" class="view">
-    <header class="topbar topbar-simple">
+    <header class="topbar">
       <button class="icon-btn" id="btn-diario-back" aria-label="Voltar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
       </button>
-      <h1 class="page-title">Diário livre</h1>
-      <span id="diario-date-label" class="page-subtitle-inline"></span>
+
+      <div class="day-nav js-day-nav">
+        <button class="arrow-btn js-prev-day" aria-label="Dia anterior">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button class="day-label js-open-calendar" aria-label="Abrir calendário">
+          <span class="day-name">Segunda</span>
+          <span class="day-date">04 de agosto</span>
+        </button>
+        <button class="arrow-btn js-next-day" aria-label="Próximo dia">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+
+      <span class="icon-btn-spacer" aria-hidden="true"></span>
     </header>
+    <p class="page-title diario-page-title">Diário livre</p>
     <div class="content">
       <textarea id="diario-text" class="diario-textarea" placeholder="Escreva livremente sobre o seu dia…"></textarea>
     </div>

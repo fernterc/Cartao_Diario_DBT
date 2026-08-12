@@ -102,6 +102,11 @@ h1,h2{font-family:var(--font-display);margin:0;}
 .content{padding:4px 16px 40px;}
 .page-title{font-size:1.15rem;font-weight:600;margin-left:4px;}
 .page-subtitle-inline{color:var(--ink-soft);font-size:.85rem;margin-left:auto;margin-right:14px;}
+.icon-btn-spacer{width:42px;height:42px;flex:0 0 auto;}
+.diario-page-title{
+  text-align:center;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--ink-faint);margin:0 0 10px;font-weight:600;
+}
 
 .card-section{
   background:var(--surface);
@@ -146,7 +151,7 @@ h1,h2{font-family:var(--font-display);margin:0;}
   max-height:0;overflow:hidden;transition:max-height .22s ease;
   padding:0 10px;
 }
-.item-row.open .item-detail{max-height:340px;}
+.item-row.open .item-detail{max-height:420px;}
 .item-detail-inner{padding:2px 0 16px;}
 
 .dots-row{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
@@ -178,12 +183,13 @@ h1,h2{font-family:var(--font-display);margin:0;}
 .rating-value b{color:var(--primary-strong);}
 
 .obs-input{
-  width:100%;min-height:52px;resize:vertical;
+  width:100%;min-height:44px;resize:vertical;
   border:1px solid var(--border);border-radius:var(--radius-sm);
   padding:10px 12px;font-size:.88rem;background:var(--surface-alt);
   outline:none;
+  transition:min-height .18s ease, border-color .15s ease;
 }
-.obs-input:focus{border-color:var(--primary);}
+.obs-input:focus{border-color:var(--primary);min-height:130px;}
 .obs-input::placeholder{color:var(--ink-faint);}
 
 .impulse-checkbox{

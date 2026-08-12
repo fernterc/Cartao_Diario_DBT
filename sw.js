@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cartao-diario-v1';
+const CACHE_NAME = 'cartao-diario-v3';
 const CORE_ASSETS = [
   './',
   './index.html',
